@@ -1,3 +1,41 @@
+class Database:
+    __tables = []
+
+    def validate_number_of_tables(self, number_of_tables):
+        while number_of_tables is None:
+            try:
+                number_of_tables = int(input("Enter the number of tables you want to store in the database.\n"))
+                if(number_of_tables < 0):
+                    print("Please enter a positive integral value for the number of tables.\n")
+                    number_of_tables = None
+            except:
+                print("Please enter a positive integral value for the number of tables.\n")
+        return number_of_tables
+
+
+
+    def validate_number_of_attributes(self, table_name, number_of_attributes):
+        while number_of_attributes is None:
+            try:
+                number_of_attributes = int(input("Enter the number of attributes for table {}\n".format(table_name)))
+                if(number_of_attributes < 5 and number_of_attributes > 1):
+                    print("Please enter a positive integer between 1 and 5 for table {}\n".format(table_name))
+                    number_of_attributes = None
+            except:
+                print("Please enter a positive integer between 1 and 5 for table {}\n".format(table_name))
+        return number_of_attributes
+
+
+
+    def trigger_table_input(self, number_of_tables):
+        for index1 in range(len(number_of_tables)):
+            table_name = input("Enter the name of table:\n")
+            number_of_attributes = self.validate_number_of_attributes(table_name, None)
+            for index2 in range(number_of_attributes):
+                print("hello.")
+        pass
+
+
 class Table:
     # To reduce the complexity of your program, the following constraints
     #are in effect:
@@ -8,6 +46,11 @@ class Table:
     #     string type attribute, operator can only be == or <>; for int
     #     type attribute, operator can be >, >=, ==, <>, <, and <=. No
     #     need for other forms.
+    __table_name = ""
+    __table_attributes = []
+    __attribute_types = []
+
+
 
     def __init__(self,name,attributes):
         #   a. define new tables: table name, attribute names and types 
@@ -114,6 +157,7 @@ def deleteTable(table):
     #   e. users can delete a table and ensure the across-table integrity.
     pass
 
+
 #ToDO: I/O
 def main():
     # b. for each defined table ask users to input possible constraints, including Boolean conditions, FDs and MVDs (in this order)
@@ -126,6 +170,11 @@ def main():
     #deny those that violate FDs. The foreign key designation may
     #demand additional tuples in other tables (see the example in
     #I.c).
+    database = Database()
+    number_of_tables = database.validate_number_of_tables(None)
+
+    #for index in range(len(number_of_tables)):
+
     pass
   
 if __name__== "__main__":
