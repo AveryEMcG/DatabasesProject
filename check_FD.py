@@ -108,7 +108,38 @@ def define_FDs(attrs_lst):
             print(key+'->'+value)
             #print("The FD dictionary is",FD_dict)
     return FD_dict
-if __name__== "__main__":
-  define_FDs(['A', 'B','C'])
 
-  #Need to write the code to delete the FDs
+#The code to delete the FDs
+def remove_one_FD(FD_dict,FD):
+    FD=FD.split('->')    
+    LHS=FD[0]
+    RHS=FD[1]
+    print("LHS:",LHS,"RHS:",RHS)
+    if isinstance(FD_dict[LHS],list):
+        if len(FD_dict[LHS])==1:
+            del FD_dict[LHS]
+        else:
+            FD_dict[LHS].remove(RHS)
+    else:
+        del FD_dict[LHS]
+    print("The FDS after deletion are:",FD_dict)
+    return FD_dict
+
+def remove_FDs(FD_dict):
+    var = input("Please enter FDs you want to remove in a string separated by comma {Format example: 'A->B, D->C'>}. ")
+    var="".join(var.split())
+    #print("Var[0]",var[0],"var[-1]",var[-1])
+    if var[0]=="'":
+        var=var[1:]
+        print("Var in 1 if is:",var)
+    if var[-1]=="'":
+        var=var[:-1]
+        print("var in 2 if is:",var)
+    FD_lst=var.split(',')
+    for FD in FD_lst:
+        FD_dict=remove_one_FD(FD_dict,FD)
+    return FD_dict
+
+if __name__== "__main__":
+  FD_dict=define_FDs(['A','B','C'])
+  remove_FDs(FD_dict)
