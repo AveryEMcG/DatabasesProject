@@ -1,6 +1,11 @@
 from table import Table
+from fd import FD
+from mvd import MVD
 class Database:
     __tables = []
+
+    def get_tables(self):
+        return self.__tables
 
     def validate_number_of_tables(self, number_of_tables):
         while number_of_tables is None:
@@ -35,7 +40,7 @@ class Database:
 
     def trigger_table_input(self, number_of_tables):
         for index1 in range(number_of_tables):
-            table_name = input("Enter the name of table:\n")
+            table_name = input("Enter the name of table number {}:\n".format(index1 + 1))
             number_of_attributes = self.validate_number_of_attributes(table_name, None)
             print("Please enter the attribute type and attribute name in the format - attribute_type:attribute_name\n")
             table_attributes = []
@@ -280,3 +285,52 @@ class Database:
                 else:
                     attribute_constraints.append(integer_attribute_constraints)
             self.__tables[index1].set_attribute_constraints(attribute_constraints)
+
+    def trigger_table_fd(self, tables):
+        fd = FD()
+        for table in tables:
+            fd.trigger_fd_input(table)
+
+    def trigger_table_mvds(self, tables):
+        mvd = MVD()
+        for table in tables:
+            mvd.define_MVDs(table.get_table_attributes(), len(table.get_table_attributes()))
+
+    def generate_table_key(self, tables):
+        for table in tables:
+            fds = table.get_fds()
+            fd_left = []
+            fd_right = []
+            for fd in fds:
+                attributes = fd.split("->")
+                fd_left.append(attributes[0])
+                fd_right.append(attributes[1])
+            candidate_keys = table.generate_candidate_keys(fd_left, fd_right, table.get_table_attributes())
+            print("The candidate keys for the table {} is/are {}".format(table.get_table_name(), candidate_keys))
+            table.set_candidate_keys(candidate_keys)
+
+    def compute_normal_form(self, tables):
+        for table in tables:
+            fds = table.get_fds()
+            fd_left = []
+            fd_right = []
+            for fd in fds:
+                attributes = fd.split("->")
+                fd_left.append(attributes[0])
+                fd_right.append(attributes[1])
+            candidate_keys = table.get_candidate_keys()
+            attributes = table.get_table_attributes()
+            normal_form = table.compute_normal_form(fd_left, fd_right, candidate_keys, attributes)
+            print("The table {} is in {}".format(table.get_table_name(), normal_form))
+            table.set_normal_form(normal_form)
+
+    def trigger_key_input(self, tables):
+        for table in tables:
+            while(True):
+                key = input("Please enter the key for table {}".format(table.get_table_name()))
+                if key in table.get_candidate_keys():
+                    table.set_key(key)
+                    print("Valid key.")
+                    break
+                else:
+                    print("Invalid key. Please choose one of {}".format(table.get_candidate_keys()))

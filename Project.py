@@ -1,4 +1,6 @@
 from database import Database
+from table import Table
+from fd import FD
 #ToDO: I/O
 def main():
     # b. for each defined table ask users to input possible constraints, including Boolean conditions, FDs and MVDs (in this order)
@@ -15,6 +17,12 @@ def main():
     number_of_tables = database.validate_number_of_tables(None)
     database.trigger_table_input(number_of_tables)
     database.trigger_table_constraints()
+    tables = database.get_tables()
+    database.trigger_table_fd(tables)
+    database.generate_table_key(tables)
+    database.compute_normal_form(tables)
+    database.trigger_key_input(tables)
+    #database.trigger_table_mvds(tables)
     #for index in range(len(number_of_tables)):
 
     pass
