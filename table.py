@@ -15,6 +15,8 @@ class Table:
     __attribute_constraints = []
     __tuples = []
     __key = ""
+    __foreign_key = ""
+    __foreign_table = []
     __normal_form = ""
     __candidate_keys = []
     __fds = []
@@ -52,11 +54,26 @@ class Table:
     def set_key(self, key):
         self.__key = key
 
+    def get_key(self):
+        return self.__key
+
     def get_candidate_keys(self):
         return self.__candidate_keys
 
     def set_normal_form(self, normal_form):
         self.__normal_form = normal_form
+
+    def get_attribute_types(self):
+        return self.__attribute_types
+
+    def get_attribute_constraints(self):
+        return self.__attribute_constraints
+
+    def append_tuple(self, tuple):
+        self.__tuples.append(tuple)
+
+    def get_tuples(self):
+        return self.__tuples
 
     def checkConstraints(self):
         #  The legitimacy of constrains should be checked:

@@ -18,10 +18,14 @@ def main():
     database.trigger_table_input(number_of_tables)
     database.trigger_table_constraints()
     tables = database.get_tables()
-    database.trigger_table_fd(tables)
-    database.generate_table_key(tables)
-    database.compute_normal_form(tables)
-    database.trigger_key_input(tables)
+    for table in tables:
+        print(table.get_attribute_constraints())
+    database.trigger_table_fd()
+    database.generate_table_key()
+    database.compute_normal_form()
+    database.trigger_key_input()
+    database.insert_rows()
+    #database.trigger_foregin_key(tables)
     #database.trigger_table_mvds(tables)
     #for index in range(len(number_of_tables)):
 

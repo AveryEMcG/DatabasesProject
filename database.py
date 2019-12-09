@@ -100,6 +100,9 @@ class Database:
                         elif "<>" in constraint:
                             if len(string_attribute_constraints["=="]) > 0:
                                 print("Invalid constraint. Equality constraint already exists.")
+                            else:
+                                string_attribute_constraints["<>"].append(constraint.split("<>")[1])
+                                print("Valid constraint.")
                         else :
                             print("Please enter == or <> as the constraints for string type.")
                     # Pending for integer data-type.
@@ -286,18 +289,18 @@ class Database:
                     attribute_constraints.append(integer_attribute_constraints)
             self.__tables[index1].set_attribute_constraints(attribute_constraints)
 
-    def trigger_table_fd(self, tables):
+    def trigger_table_fd(self):
         fd = FD()
-        for table in tables:
+        for table in self.__tables:
             fd.trigger_fd_input(table)
 
-    def trigger_table_mvds(self, tables):
+    def trigger_table_mvds(self):
         mvd = MVD()
-        for table in tables:
+        for table in self.__tables:
             mvd.define_MVDs(table.get_table_attributes(), len(table.get_table_attributes()))
 
-    def generate_table_key(self, tables):
-        for table in tables:
+    def generate_table_key(self):
+        for table in self.__tables:
             fds = table.get_fds()
             fd_left = []
             fd_right = []
@@ -309,8 +312,8 @@ class Database:
             print("The candidate keys for the table {} is/are {}".format(table.get_table_name(), candidate_keys))
             table.set_candidate_keys(candidate_keys)
 
-    def compute_normal_form(self, tables):
-        for table in tables:
+    def compute_normal_form(self):
+        for table in self.__tables:
             fds = table.get_fds()
             fd_left = []
             fd_right = []
@@ -324,13 +327,96 @@ class Database:
             print("The table {} is in {}".format(table.get_table_name(), normal_form))
             table.set_normal_form(normal_form)
 
-    def trigger_key_input(self, tables):
-        for table in tables:
+    def trigger_key_input(self):
+        for table in self.__tables:
             while(True):
-                key = input("Please enter the key for table {}".format(table.get_table_name()))
+                key = input("Please enter the key for table {}\n".format(table.get_table_name()))
                 if key in table.get_candidate_keys():
                     table.set_key(key)
                     print("Valid key.")
                     break
                 else:
                     print("Invalid key. Please choose one of {}".format(table.get_candidate_keys()))
+
+
+    def insert_rows(self):
+        for table in self.__tables:
+            while(True):
+                row = input("Please enter row values separated by commas for table {} \n"
+                            "with attributes {} of type {} in the order that they appear.\n"
+                            "For example: Attributes ABC with data type integer, string, integer should be input as\n"
+                            "1,hello,2. Enter 'quit' to stop entering the input.\n"
+                            "".format(table.get_table_name(), table.get_table_attributes(), 
+                                                  table.get_attribute_types()))
+                count = 0
+                if row == 'quit':
+                    break
+                tuple = row.split(",")
+                if(len(tuple) == len(table.get_table_attributes())):
+                    types = table.get_attribute_types()
+                    for index in range(0, len(types)):
+                        if types[index] == "integer":
+                            try:
+                                int(tuple[index])
+                                for constraint, values in table.get_attribute_constraints()[index].items():
+                                    if constraint == "==" and len(values) > 0:
+                                        if(tuple[index] != int(values[0])):
+                                            count+=1
+                                            print("Invalid Value. Enter values equal to {}\n".format(values[0]))
+                                            break
+                                    elif constraint == "<>" and len(values) > 0:
+                                        for value in values:
+                                            if(tuple[index] == value):
+                                                count+=1
+                                                print("Invalid Value. Enter values not equal to {}\n".format(value))
+                                                break
+                                    elif constraint == "<" and len(values) > 0:
+                                        if tuple[index] >= values[0]:
+                                            count+=1
+                                            print("Invalid Value. Enter values less than {}\n".format(values[0]))
+                                            break
+                                    elif constraint == "<=" and len(values) > 0:
+                                        if tuple[index] > values[0]:
+                                            count += 1
+                                            print("Invalid Value. Enter values less than equal to {}\n".format(values[0]))
+                                            break
+                                    elif constraint == ">=" and len(values) > 0:
+                                        if tuple[index] < values[0]:
+                                            count += 1
+                                            print("Invalid Value. Enter values greater than equal to {}\n".format(values[0]))
+                                            break
+                                    elif constraint == ">" and len(values) > 0:
+                                        if tuple[index] <= values[0]:
+                                            count += 1
+                                            print("Invalid Value. Enter values greater than {}\n".format(values[0]))
+                                            break
+                                    if count != 0:
+                                        break
+                                if count != 0:
+                                    break
+                            except:
+                                print("Invalid data type entered. Please re-enter row values.\n")
+                                break
+                        else:
+                            for constraint, values in table.get_attribute_constraints()[index].items():
+                                if constraint == "==" and len(values) > 0:
+                                    if tuple[index] != values[0]:
+                                        count += 1
+                                        print("Invalid Value. Enter values equal to {}\n".format(values[0]))
+                                        break
+                                elif constraint == "<>" and len(values) > 0:
+                                    for value in values:
+                                        if tuple[index] == value:
+                                            count += 1
+                                            print("Invalid Value. Enter values that are not equal to {}\n".format(value))
+                                            break
+                                if count != 0:
+                                    break
+                        if count != 0:
+                            break
+                    if count == 0:
+                        table.append_tuple(tuple)
+                        print("Valid value. Added to the table {}".format(table.get_table_name()))
+                else:
+                    print("The number of values do not match the attributes. Please re-enter.")
+
