@@ -1,5 +1,4 @@
 from table import Table
-from fd import FD
 from mvd import MVD
 import Relational_Algebra as RA
 class Database:
@@ -101,6 +100,9 @@ class Database:
                         elif "<>" in constraint:
                             if len(string_attribute_constraints["=="]) > 0:
                                 print("Invalid constraint. Equality constraint already exists.")
+                            else:
+                                string_attribute_constraints["<>"].append(constraint.split("<>")[1])
+                                print("Valid constraint.")
                         else :
                             print("Please enter == or <> as the constraints for string type.")
                     # Pending for integer data-type.
@@ -287,18 +289,84 @@ class Database:
                     attribute_constraints.append(integer_attribute_constraints)
             self.__tables[index1].set_attribute_constraints(attribute_constraints)
 
-    def trigger_table_fd(self, tables):
-        fd = FD()
-        for table in tables:
-            fd.trigger_fd_input(table)
+    def is_equivalent(self, str1, str2):
+        str1 = "".join(sorted(str1))
+        str2 = "".join(sorted(str2))
+        return str1 == str2
 
-    def trigger_table_mvds(self, tables):
+    def trigger_table_fd(self):
+        for table in self.__tables:
+            name = table.get_table_name()
+            table_attributes = table.get_table_attributes()
+            table_fds = []
+            print("The attribute list for table {} are {}".format(name, table_attributes))
+            print("Please enter the FDs for table {} in format: A->B\nOr enter 'quit' to stop entering fds"
+                  " and 'delete' to delete fds.".format(name))
+            while (True):
+                fd = input()
+                if fd == "quit":
+                    break
+                if fd == "delete":
+                    count = 0
+                    fds = table_fds
+                    fd = input("Enter the Functional dependency you want to remove from {}\n".format(fds))
+                    while (count == 0):
+                        try:
+                            fds.remove(fd)
+                            count += 1
+                        except:
+                            print("Invalid entry. Please enter the functional dependency from the {}".format(fds))
+                            fd = input("Enter the Functional dependency you want to remove from {}\n".format(fds))
+                    print("Deleted successfully.")
+                    continue
+                if "->" in fd:
+                    attributes = fd.split("->")
+                    lhs = attributes[0]
+                    rhs = attributes[1]
+                    count = 0
+                    if self.is_equivalent(lhs, rhs):
+                        print("Trivial Functional Dependency. Each attribute determines itself.")
+                        continue
+                    for attribute in lhs:
+                        if attribute not in table_attributes:
+                            print(
+                                "Invalid Functional Dependency. The attribute {} does not exist.".format(attribute))
+                            count += 1
+                            break
+                    for attribute in rhs:
+                        if attribute not in table_attributes:
+                            print(
+                                "Invalid Functional Dependency. The attribute {} does not exist.".format(attribute))
+                            count += 1
+                            break
+                    if count == 0:
+                        fds = table_fds
+                        fds_left = []
+                        fds_right = []
+                        for index in range(0, len(fds)):
+                            temp = fds[index].split("->")
+                            fds_left.append(temp[0])
+                            fds_right.append(temp[1])
+                        closure1 = table.compute_closure(fds_left, fds_right, lhs)
+                        fds_left.append(lhs)
+                        fds_right.append(rhs)
+                        closure2 = table.compute_closure(fds_left, fds_right, lhs)
+                        if not self.is_equivalent(closure1, closure2):
+                            table_fds.append(fd)
+                            print("Valid Functional Dependency.")
+                        else:
+                            print("Trivial Functional Dependency. Can be derived from others.")
+                else:
+                    print("Please enter Functional Dependencies in format A->B with uppercase attributes.")
+            table.set_fds(table_fds)
+
+    def trigger_table_mvds(self):
         mvd = MVD()
-        for table in tables:
+        for table in self.__tables:
             mvd.define_MVDs(table.get_table_attributes(), len(table.get_table_attributes()))
 
-    def generate_table_key(self, tables):
-        for table in tables:
+    def generate_table_key(self):
+        for table in self.__tables:
             fds = table.get_fds()
             fd_left = []
             fd_right = []
@@ -310,8 +378,8 @@ class Database:
             print("The candidate keys for the table {} is/are {}".format(table.get_table_name(), candidate_keys))
             table.set_candidate_keys(candidate_keys)
 
-    def compute_normal_form(self, tables):
-        for table in tables:
+    def compute_normal_form(self):
+        for table in self.__tables:
             fds = table.get_fds()
             fd_left = []
             fd_right = []
@@ -323,6 +391,9 @@ class Database:
             attributes = table.get_table_attributes()
             normal_form = table.compute_normal_form(fd_left, fd_right, candidate_keys, attributes)
             print("The table {} is in {}".format(table.get_table_name(), normal_form))
+            if normal_form == "First Normal Form" or normal_form == "Second Normal Form":
+                print("Please delete the whole table or edit the functional dependencies\n"
+                      "for the table to be in Third Normal Form or Boyce-Codd Normal Form.\n")
             table.set_normal_form(normal_form)
 
     def Natural_Join(T1,T2):
@@ -339,8 +410,8 @@ class Database:
             join.set_key(T1.key)
         elif len(ck)>=1:
             join.set_key(ck[0])
-        else
-            print "Error, no key determined for crossjoin"    
+        else:
+            print("Error, no key determined for crossjoin")
         return join      
 
     def Cross_Join(T1,T2):
@@ -357,18 +428,282 @@ class Database:
             join.set_key(T1.key)
         elif len(ck)>=1:
             join.set_key(ck[0])
-        else
-            print "Error, no key determined for crossjoin"
+        else:
+            print("Error, no key determined for crossjoin")
 
         return join        
 
-    def trigger_key_input(self, tables):
-        for table in tables:
+    def trigger_key_input(self):
+        for table in self.__tables:
             while(True):
-                key = input("Please enter the key for table {}".format(table.get_table_name()))
+                key = input("Please enter the key for table {}\n".format(table.get_table_name()))
                 if key in table.get_candidate_keys():
                     table.set_key(key)
                     print("Valid key.")
                     break
                 else:
                     print("Invalid key. Please choose one of {}".format(table.get_candidate_keys()))
+
+    def trigger_foreign_key_input(self):
+        if len(self.__tables) < 2:
+            print("Insufficient number of tables for foreign key assignment.\n")
+            return
+        for table in self.__tables:
+            while(True):
+                if(table.get_foreign_key() != ""):
+                    break
+                foreign = input("Please enter the foreign key for table {} in format\n"
+                                "table_name:attribute_name. Enter 'quit' to exit.\n"
+                                .format(table.get_table_name(), self.__tables))
+                if foreign == "quit":
+                    break
+                if ":" not in foreign:
+                    print("Please enter the foreign key in the format table_name:attribute_name")
+                    continue
+                else:
+                    count = 0
+                    inp = foreign.split(":")
+                    foreign_table = inp[0]
+                    foreign_key = inp[1]
+                    table_names = []
+                    for table in self.__tables:
+                        table_names.append(table.get_table_name())
+                    if foreign_table not in table_names:
+                        print("Table does not exist")
+                        continue
+                    for t in self.__tables:
+                        if t.get_table_name() == foreign_table:
+                            if foreign_key not in t.get_table_attributes():
+                                count += 1
+                                print("Attribute does not exist. Please re-enter")
+                                break
+                            else:
+                                table.set_foreign_key(foreign_key)
+                                table.set_foreign_table(t)
+                                print("Foreign key added successfully.")
+
+
+
+    def insert_rows(self):
+        for table in self.__tables:
+            table_tuples = []
+            while(True):
+                row = input("Please enter row values separated by commas for table {} \n"
+                            "with attributes {} of type {} in the order that they appear.\n"
+                            "For example: Attributes ABC with data type integer, string, integer should be input as\n"
+                            "1,hello,2. Enter 'quit' to stop entering the input.\n"
+                            "".format(table.get_table_name(), table.get_table_attributes(), 
+                                                  table.get_attribute_types()))
+                count = 0
+                if row == 'quit':
+                    break
+                if "," in row:
+                    tuple = row.split(",")
+                    if(len(tuple) == len(table.get_table_attributes())):
+                        key = table.get_key()
+                        key_index = 0
+                        attributes = table.get_table_attributes()
+                        for index in range(len(attributes)):
+                            if key == attributes[index]:
+                                key_index = index
+                        for row in table.get_tuples():
+                            if tuple[key_index] == row[key_index]:
+                                count += 1
+                        if count != 0:
+                            print("The value {} already exists".format(tuple[key_index]))
+                            continue
+                        if (table.get_foreign_key() != ""):
+                            foreign_table = table.get_foreign_table()
+                            foreign_attributes = foreign_table.get_table_attributes()
+                            if table.get_foreign_key() not in foreign_attributes:
+                                print("Invalid attribute entered. Please re-enter.\n")
+                                continue
+                            table_attributes = table.get_table_attributes()
+                            table_index = 0
+                            for index in range(len(table_attributes)):
+                                if (table.get_foreign_key() == table_attributes[index]):
+                                    table_index = index
+
+                            foreign_index = 0
+                            for index in range(len(foreign_attributes)):
+                                if table.get_foreign_key() == foreign_attributes[index]:
+                                    foreign_index = index
+                            table_rows = foreign_table.get_tuples()
+                            for row in table_rows:
+                                if row[foreign_index] != tuple[table_index]:
+                                    count = 1
+                                else:
+                                    count = 0
+                                    break
+                            if count == 1:
+                                print("The value does not exist. Please enter it in the foreign table first.\n")
+                                continue
+                        types = table.get_attribute_types()
+                        for index in range(0, len(types)):
+                            if types[index] == "integer":
+                                try:
+                                    int(tuple[index])
+                                    for constraint, values in table.get_attribute_constraints()[index].items():
+                                        if constraint == "==" and len(values) > 0:
+                                            if(int(tuple[index]) != int(values[0])):
+                                                count+=1
+                                                print("Invalid Value. Enter values equal to {}\n".format(values[0]))
+                                                break
+                                        elif constraint == "<>" and len(values) > 0:
+                                            for value in values:
+                                                if int(tuple[index]) == int(value):
+                                                    count+=1
+                                                    print("Invalid Value. Enter values not equal to {}\n".format(value))
+                                                    break
+                                        elif constraint == "<" and len(values) > 0:
+                                            if int(tuple[index]) >= int(values[0]):
+                                                count+=1
+                                                print("Invalid Value. Enter values less than {}\n".format(values[0]))
+                                                break
+                                        elif constraint == "<=" and len(values) > 0:
+                                            if int(tuple[index]) > int(values[0]):
+                                                count += 1
+                                                print("Invalid Value. Enter values less than equal to {}\n".format(values[0]))
+                                                break
+                                        elif constraint == ">=" and len(values) > 0:
+                                            if int(tuple[index]) < int(values[0]):
+                                                count += 1
+                                                print("Invalid Value. Enter values greater than equal to {}\n".format(values[0]))
+                                                break
+                                        elif constraint == ">" and len(values) > 0:
+                                            if int(tuple[index]) <= int(values[0]):
+                                                count += 1
+                                                print("Invalid Value. Enter values greater than {}\n".format(values[0]))
+                                                break
+                                        if count != 0:
+                                            break
+                                    if count != 0:
+                                        break
+                                except:
+                                    print("Invalid data type entered. Please re-enter row values.\n")
+                                    break
+                            else:
+                                for constraint, values in table.get_attribute_constraints()[index].items():
+                                    if constraint == "==" and len(values) > 0:
+                                        if tuple[index] != values[0]:
+                                            count += 1
+                                            print("Invalid Value. Enter values equal to {}\n".format(values[0]))
+                                            break
+                                    elif constraint == "<>" and len(values) > 0:
+                                        for value in values:
+                                            if tuple[index] == value:
+                                                count += 1
+                                                print("Invalid Value. Enter values that are not equal to {}\n".format(value))
+                                                break
+                                    if count != 0:
+                                        break
+                            if count != 0:
+                                break
+                        if count == 0:
+                            table_tuples.append(tuple)
+                            print("Valid value. Added to the table {}\n".format(table.get_table_name()))
+                    else:
+                        print("The number of values do not match the attributes. Please re-enter.\n")
+                    table.set_tuple(table_tuples)
+
+    def delete_rows(self):
+        for table in self.__tables:
+            while(True):
+                key = input("Enter the value of a key for table {} to remove the corresponding row. Enter 'quit' to exit.\n"
+                            .format(table.get_table_name()))
+                if key == "quit":
+                    break
+                else:
+                    if table.get_foreign_key() != "":
+                        count = 0
+                        foreign_table = table.get_foreign_table()
+                        foreign_attributes = foreign_table.get_table_attributes()
+                        foreign_index = 0
+                        for index in range(len(foreign_attributes)):
+                            if foreign_attributes[index] == table.get_foreign_key():
+                                foreign_index = index
+                        tuples = foreign_table.get_tuples()
+                        foreign_attribute_type = foreign_table.get_attribute_types()[foreign_index]
+                        if foreign_attribute_type == "integer":
+                            for row in tuples:
+                                try:
+                                    if int(row[foreign_index]) == int(key):
+                                        print("The row cannot be deleted without maintaining cross-table integrity.\n")
+                                        count += 1
+                                        break
+                                except:
+                                    print("Enter numerical value for the key.\n")
+                                    break
+                        else:
+                            for row in tuples:
+                                if row[foreign_index] == key:
+                                    print("The row cannot be deleted without maintaining cross-table integrity.\n")
+                                    count += 1
+                                    break
+                        rows = table.get_tuples()
+                        for row in rows:
+                            if count == 0:
+                                rows.remove(row)
+                                table.set_tuple(rows)
+                                print("Deleted row successfully.")
+                                break
+                        continue
+                    count = 1
+                    primary_key = table.get_key()
+                    table_attributes = table.get_table_attributes()
+                    table_index = 0
+                    for index in range(len(table_attributes)):
+                        if table_attributes[index] == primary_key:
+                            table_index = index
+                    if table.get_attribute_types()[table_index] == "integer":
+                        tuples = table.get_tuples()
+                        for row in tuples:
+                            try:
+                                if int(row[table_index]) == int(key):
+                                    tuples.remove(row)
+                                    table.set_tuple(tuples)
+                                    count = 0
+                                    print("Row deleted successfully.\n")
+                            except:
+                                print("Please enter numerical value for the key.\n")
+                                break
+                        if count == 1:
+                            print("Row could not be deleted because of invalid values that do not exist.\n")
+                    else:
+                        tuples = table.get_tuples()
+                        for row in tuples:
+                            if row[table_index] == key:
+                                tuples.remove(row)
+                                table.set_tuple(tuples)
+                                count = 0
+                                print("Row deleted successfully.")
+                        if count == 1:
+                            print("Row could not be deleted because of invalid values that do not exist.\n")
+
+    def delete_table(self):
+        while(True):
+            count = 0
+            if len(self.__tables) > 0:
+                table_name = input("Please enter the name of the table you want to delete.\n")
+                deletion_table = None
+                table_names = []
+                for table in self.__tables:
+                    table_names.append(table.get_table_name())
+                if table_name not in table_names:
+                    print("Table does not exist. Please enter a valid table name.\n")
+                    continue
+                else:
+                    for table in self.__tables:
+                        if table_name == table.get_table_name():
+                            deletion_table = table
+                            break
+                    for table in self.__tables:
+                            if deletion_table.get_foreign_table() != None \
+                                    and deletion_table.get_foreign_table().get_table_name() == table.get_table_name():
+                                print("Table deletion has cross table integrity issues. Hence cannot be deleted.\n")
+                                count += 1
+                if count == 0:
+                    self.__tables.remove(deletion_table)
+                    print("Table deleted successfully.\n")
+            else:
+                break
