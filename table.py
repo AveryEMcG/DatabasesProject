@@ -1,14 +1,5 @@
 
 class Table:
-    # To reduce the complexity of your program, the following constraints
-    #are in effect:
-    #  1. _at most_ four attributes for a table.
-    #  2. single character (upper case) attribute names.
-    #  3. the type for ALL attributes is either string or integer.
-    #  4. for boolean conditions, only "attr op value" is allowed. For
-    #     string type attribute, operator can only be == or <>; for int
-    #     type attribute, operator can be >, >=, ==, <>, <, and <=. No
-    #     need for other forms.
     __table_name = ""
     __table_attributes = []
     __attribute_types = []
@@ -16,15 +7,12 @@ class Table:
     __tuples = []
     __key = ""
     __foreign_key = ""
-    __foreign_table = []
+    __foreign_table = None
     __normal_form = ""
     __candidate_keys = []
     __fds = []
 
-
-
     def __init__(self, table_name, table_attributes, attribute_types):
-        #   a. define new tables: table name, attribute names and types
         self.__table_name = table_name
         self.__table_attributes = table_attributes
         self.__attribute_types = attribute_types
@@ -45,8 +33,8 @@ class Table:
     def get_fds(self):
         return self.__fds
 
-    def append_fd(self, fd):
-        self.__fds.append(fd)
+    def set_fds(self, fds):
+        self.__fds = fds
 
     def set_candidate_keys(self, candidate_keys):
         self.__candidate_keys = candidate_keys
@@ -63,53 +51,26 @@ class Table:
     def set_normal_form(self, normal_form):
         self.__normal_form = normal_form
 
-    def get_attribute_types(self):
-        return self.__attribute_types
-
     def get_attribute_constraints(self):
         return self.__attribute_constraints
 
-    def append_tuple(self, tuple):
-        self.__tuples.append(tuple)
+    def set_tuple(self, tuples):
+        self.__tuples = tuples
 
     def get_tuples(self):
         return self.__tuples
 
-    def checkConstraints(self):
-        #  The legitimacy of constrains should be checked:
-        #1. ignore conflicting Boolean conditions such as A>10 and
-        #   A<5;
-        #2. trivial and redundant FDs should be denied entry with a
-        #   feedback to the user;
-        #3. Users have the choice to remove some FDs;
-        #4. trivial MVD or MVD that is trivialized by an existing FD,
-        #   e.g., A->->B is trivialized by A->B or table with only two
-        # attributes AB.
-        #  5. foreign key designation, e.g., ssn in table roster is the
-        #     key in table student. If one wants to input a tuple in roster
-        #     and the ssn is non-existent, the user will be prompted to
-        #     either quit the input or inserting a new tuple to the student
-        #     table. if one wants to delete a record in table student,
-        #     corresponding tuples in roster should also be deleted.
-        pass
+    def set_foreign_key(self, foreign_key):
+        self.__foreign_key = foreign_key
 
-    def processConstraints(self):
-        # The legitimacy of constrains should be checked:
-        #1. ignore conflicting Boolean conditions such as A>10 and
-        # A<5;
-        #2. trivial and redundant FDs should be denied entry with a
-        #   feedback to the user;
-        #3. Users have the choice to remove some FDs;
-        #4. trivial MVD or MVD that is trivialized by an existing FD,
-        #  e.g., A->->B is trivialized by A->B or table with only two
-        # attributes AB.
-        #  5. foreign key designation, e.g., ssn in table roster is the
-        #     key in table student. If one wants to input a tuple in roster
-        #     and the ssn is non-existent, the user will be prompted to
-        #     either quit the input or inserting a new tuple to the student
-        #     table. if one wants to delete a record in table student,
-        #     corresponding tuples in roster should also be deleted.
-        pass
+    def get_foreign_key(self):
+        return self.__foreign_key
+
+    def set_foreign_table(self, table):
+        self.__foreign_table = table
+
+    def get_foreign_table(self):
+        return self.__foreign_table
 
     def is_subset(self, str1, str2):
         count = 0
@@ -182,9 +143,6 @@ class Table:
                         keys.append(seed)
 
     def compute_normal_form(self, lhs, rhs, keys, attributes):
-        #   c. Evaluate the NF category for the user defined DB, ask user to
-        #either delete the entire table or add/remove FDs to boost 1 or
-        #2NF tables to at least 3NF.
         key_attributes = ""
         for key in keys:
             for attribute in key:
@@ -230,61 +188,5 @@ class Table:
             return "Boyce-Codd Normal Form."
 
         return "Second Normal Form."
-
-    def checkFDForTuple(self):
-        #   a. users can input new tuples to all tables, your system should
-        #deny those that violate FDs. The foreign key designation may
-        #demand additional tuples in other tables (see the example in
-        #I.c).
-        pass
-
-    def findTuple(self):
-        #   c. users can perform actions below for one table:
-        #i) find tuples that satisfy conditions for some attributes
-        pass
-
-    def groupTuples(self):
-        #c. users can perform actions below for one table:
-        #i) find tuples that satisfy conditions for some attributes
-        #ii) group tuples based on one or several chosen attribute
-        pass
-
-    def addTuple(self):
-        #   a. users can input new tuples to all tables, your system should
-        #deny those that violate FDs. The foreign key designation may
-        #demand additional tuples in other tables (see the example in
-        #I.c).
-        pass
-
-    def deleteTuple(self):
-        #   b. users can delete a tuple based on key value, and again take
-        #care of the cross-table dependencies
-        pass
-
-
-#   d. users can choose to perform the following operators for two
-#      tables:
-#       cross join, natural join, union, intersection, difference
-def join(table1,table2):
-    pass
-
-def crossJoin(table1,table2):
-    pass
-
-def naturalJoin(table1, table2):
-    pass
-
-def union(table1,table2):
-    pass
-
-def intersection(table1,table2):
-    pass
-
-def difference(table1,table2):
-    pass
-
-def deleteTable(table):
-    #   e. users can delete a table and ensure the across-table integrity.
-    pass
 
 
