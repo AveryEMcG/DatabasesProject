@@ -37,10 +37,12 @@ class Database:
     def validate_attribute_name(self, attribute_name):
         return len(attribute_name) == 1 and attribute_name == attribute_name.upper()
 
-
     def trigger_table_input(self, number_of_tables):
         for index1 in range(number_of_tables):
-            table_name = input("Enter the name of table number {}:\n".format(index1 + 1))
+            table_name = ''
+            while table_name == '':
+                table_name = input("enter the name of table number {}:\n".format(index1 + 1))
+
             number_of_attributes = self.validate_number_of_attributes(table_name, None)
             print("Please enter the attribute type and attribute name in the format - attribute_type:attribute_name\n")
             table_attributes = []
@@ -83,6 +85,10 @@ class Database:
                     constraint = input()
                     if(constraint == '@$'):
                         break
+                    elif(constraint==''):
+                        print("Please enter the constraints in format (attribute_name operator comparator) "
+                            "for attribute {}  or enter @$ to finish entering constraints for the attribute\n"      
+                            .format(table_attributes[index2]))                                              
                     elif(constraint[0] != table_attributes[index2]):
                         print("Enter attributes for {}".format(table_attributes[index2]))
                         continue
@@ -94,15 +100,15 @@ class Database:
                                 continue
                             elif(constraint.split("==")[1] not in string_attribute_constraints["<>"]):
                                 string_attribute_constraints["=="].append(constraint.split("==")[1])
-                                print("Valid constraint.")
+                                print("Valid constraint. Please enter others or enter @$ to finish entering constraints for the attribute")
                             else:
-                                print("Invalid constraint. Exists in not equal constraint.")
+                                print("Invalid constraint. Exists in not equal constraint. Please enter others or enter @$ to finish entering constraints for the attribute")
                         elif "<>" in constraint:
                             if len(string_attribute_constraints["=="]) > 0:
-                                print("Invalid constraint. Equality constraint already exists.")
+                                print("Invalid constraint. Equality constraint already exists. Please enter others or enter @$ to finish entering constraints for the attribute")
                             else:
                                 string_attribute_constraints["<>"].append(constraint.split("<>")[1])
-                                print("Valid constraint.")
+                                print("Valid constraint. Please enter others or enter @$ to finish entering constraints for the attribute")
                         else :
                             print("Please enter == or <> as the constraints for string type.")
                     # Pending for integer data-type.
@@ -111,7 +117,7 @@ class Database:
                             try:
                                 int(constraint.split("==")[1])
                             except:
-                                print("Invalid constraint. Enter a numerical value for comparison.")
+                                print("Invalid constraint. Enter a numerical value for comparison. Please enter others or enter @$ to finish entering constraints for the attribute")
                                 continue
                             if (len(integer_attribute_constraints["=="]) == 1):
                                 print("Invalid constraint. Equals constraint already exists. Please enter others.")
@@ -119,30 +125,30 @@ class Database:
                             elif(constraint.split("==")[1] not in integer_attribute_constraints["<>"]):
                                 count = 0
                                 if len(integer_attribute_constraints["<"]) > 0:
-                                    print("Invalid constraint. Less than constraint exists with {}.".format(
+                                    print("Invalid constraint. Less than constraint exists with {}. Please enter others or enter @$ to finish entering constraints for the attribute".format(
                                         integer_attribute_constraints["<"][0]))
                                     count += 1
                                 if len(integer_attribute_constraints["<="]) > 0:
-                                    print("Invalid constraint. Less than equal to constraint exists with {}.".format(
+                                    print("Invalid constraint. Less than equal to constraint exists with {}. Please enter others or enter @$ to finish entering constraints for the attribute".format(
                                         integer_attribute_constraints["<="][0]))
                                     count += 1
                                 if len(integer_attribute_constraints[">"]) > 0:
-                                    print("Invalid constraint. Greater than constraint exists with {}.".format(
+                                    print("Invalid constraint. Greater than constraint exists with {}. Please enter others or enter @$ to finish entering constraints for the attribute".format(
                                         integer_attribute_constraints[">"][0]))
                                     count += 1
                                 if len(integer_attribute_constraints[">="]) > 0:
-                                    print("Invalid constraint. Greater than equal to constraint exists with {}.".format(
+                                    print("Invalid constraint. Greater than equal to constraint exists with {}. Please enter others or enter @$ to finish entering constraints for the attribute".format(
                                         integer_attribute_constraints[">="][0]))
                                     count += 1
                                 if len(integer_attribute_constraints["<>"]) > 0:
-                                    print("Invalid constraint. Not equal to constraint exists with {}.".format(
+                                    print("Invalid constraint. Not equal to constraint exists with {}. Please enter others or enter @$ to finish entering constraints for the attribute".format(
                                         integer_attribute_constraints["<>"][0]))
                                     count += 1
                                 if count == 0:
                                     integer_attribute_constraints["=="].append(constraint.split("==")[1])
-                                    print("Valid constraint.")
+                                    print("Valid constraint. Please enter others or enter @$ to finish entering constraints for the attribute")
                             else:
-                                print("Invalid constraint. The value exists as an inequality constraint.")
+                                print("Invalid constraint. The value exists as an inequality constraint. Please enter others or enter @$ to finish entering constraints for the attribute")
                         elif "<>" in constraint:
                             try:
                                 int(constraint.split("<>")[1])
@@ -161,28 +167,28 @@ class Database:
                                 continue
                             if len(integer_attribute_constraints["=="]) > 0:
                                 count += 1
-                                print("Invalid constraint. Equality constraint already exists with".format(
+                                print("Invalid constraint. Equality constraint already exists with Please enter others or enter @$ to finish entering constraints for the attribute".format(
                                     integer_attribute_constraints["=="][0]))
                             if len(integer_attribute_constraints["<"]) > 0:
                                 if int(constraint.split(">")[1]) > int(integer_attribute_constraints["<"][0]):
-                                    print("Invalid constraint. Enter values less than {}".format(
+                                    print("Invalid constraint. Enter values less than {} Please enter others or enter @$ to finish entering constraints for the attribute".format(
                                         int(integer_attribute_constraints["<"][0]) - 1))
                                     count += 1
                             if len(integer_attribute_constraints["<="]) > 0:
                                 if int(constraint.split(">")[1]) > int(integer_attribute_constraints["<="][0]):
-                                    print("Invalid constraint. Enter values less than {}".format(
+                                    print("Invalid constraint. Enter values less than {} Please enter others or enter @$ to finish entering constraints for the attribute".format(
                                         integer_attribute_constraints["<="][0]))
                                     count += 1
                             if len(integer_attribute_constraints[">="]) > 0:
                                 if int(constraint.split(">")[1]) > int(integer_attribute_constraints[">="][0]):
-                                    print("Invalid constraint. Enter values less than {}".format(
+                                    print("Invalid constraint. Enter values less than {} Please enter others or enter @$ to finish entering constraints for the attribute".format(
                                         integer_attribute_constraints[">="][0]))
                                     count += 1
                             if len(integer_attribute_constraints[">"]) > 0:
                                 count += 1
-                                print("Invalid constraint. Greater than constraint already exists.")
+                                print("Invalid constraint. Greater than constraint already exists. Please enter others or enter @$ to finish entering constraints for the attribute")
                             if count == 0:
-                                print("Valid constraint.")
+                                print("Valid constraint. Please enter others or enter @$ to finish entering constraints for the attribute")
                                 integer_attribute_constraints[">"].append(constraint.split(">")[1])
                         elif ">=" in constraint:
                             count = 0
@@ -193,95 +199,95 @@ class Database:
                                 continue
                             if len(integer_attribute_constraints["=="]) > 0:
                                 count += 1
-                                print("Invalid constraint. Equality constraint already exists with {}".format(
+                                print("Invalid constraint. Equality constraint already exists with {} Please enter others or enter @$ to finish entering constraints for the attribute".format(
                                     integer_attribute_constraints["=="][0]))
                             if len(integer_attribute_constraints["<"]) > 0:
                                     if int(constraint.split(">=")[1]) > int(integer_attribute_constraints["<"][0]):
-                                        print("Invalid constraint. Enter values less than {}".format(int(integer_attribute_constraints["<"][0]) - 1))
+                                        print("Invalid constraint. Enter values less than {} Please enter others or enter @$ to finish entering constraints for the attribute".format(int(integer_attribute_constraints["<"][0]) - 1))
                                         count += 1
                             if len(integer_attribute_constraints["<="]) > 0:
                                     if int(constraint.split(">=")[1]) > int(integer_attribute_constraints["<="][0]):
-                                        print("Invalid constraint. Enter values less than {}".format(
+                                        print("Invalid constraint. Enter values less than {} Please enter others or enter @$ to finish entering constraints for the attribute".format(
                                             integer_attribute_constraints["<="][0]))
                                         count += 1
                             if len(integer_attribute_constraints[">"]) > 0:
                                 if int(constraint.split(">=")[1]) <= int(integer_attribute_constraints[">"][0]):
-                                    print("Invalid constraint. Enter values greater than {}".format(
+                                    print("Invalid constraint. Enter values greater than {} Please enter others or enter @$ to finish entering constraints for the attribute".format(
                                         integer_attribute_constraints[">"][0]))
                                     count += 1
                             if len(integer_attribute_constraints[">="]) > 0:
                                 count += 1
-                                print("Invalid constraint. Greater than equal to constraint already exists.")
+                                print("Invalid constraint. Greater than equal to constraint already exists. Please enter others or enter @$ to finish entering constraints for the attribute")
                             if count == 0:
-                                print("Valid constraint.")
+                                print("Valid constraint. Please enter others or enter @$ to finish entering constraints for the attribute")
                                 integer_attribute_constraints[">="].append(constraint.split(">=")[1])
                         elif "<" in constraint and "<=" not in constraint:
                             count = 0
                             try:
                                 int(constraint.split("<")[1])
                             except:
-                                print("Invalid constraint. Enter a numerical value for comparison.")
+                                print("Invalid constraint. Enter a numerical value for comparison. Please enter others or enter @$ to finish entering constraints for the attribute")
                                 continue
                             if len(integer_attribute_constraints["=="]) > 0:
                                 count += 1
-                                print("Invalid constraint. Equality constraint already exists with {}".format(
+                                print("Invalid constraint. Equality constraint already exists with {} Please enter others or enter @$ to finish entering constraints for the attribute".format(
                                     integer_attribute_constraints["=="][0]))
                             if len(integer_attribute_constraints[">"]) > 0:
                                 if int(constraint.split("<")[1]) < int(integer_attribute_constraints[">"][0]):
-                                    print("Invalid constraint. Enter values greater than {}".format(
+                                    print("Invalid constraint. Enter values greater than {} Please enter others or enter @$ to finish entering constraints for the attribute".format(
                                         int(integer_attribute_constraints[">"][0]) + 1))
                                     count += 1
                             if len(integer_attribute_constraints[">="]) > 0:
                                 if int(constraint.split("<")[1]) < int(integer_attribute_constraints[">="][0]):
-                                    print("Invalid constraint. Enter values greater than {}".format(
+                                    print("Invalid constraint. Enter values greater than {} Please enter others or enter @$ to finish entering constraints for the attribute".format(
                                         integer_attribute_constraints[">="][0]))
                                     count += 1
                             if len(integer_attribute_constraints["<="]) > 0:
                                 if int(constraint.split("<")[1]) < int(integer_attribute_constraints["<="][0]):
-                                    print("Invalid constraint. Enter values greater than {}".format(
+                                    print("Invalid constraint. Enter values greater than {} Please enter others or enter @$ to finish entering constraints for the attribute".format(
                                         integer_attribute_constraints["<="][0]))
                                     count += 1
                             if len(integer_attribute_constraints["<"]) > 0:
                                 count += 1
-                                print("Invalid constraint. Less than constraint already exists.")
+                                print("Invalid constraint. Less than constraint already exists. Please enter others or enter @$ to finish entering constraints for the attribute")
                             if count == 0:
-                                print("Valid constraint.")
+                                print("Valid constraint. Please enter others or enter @$ to finish entering constraints for the attribute")
                                 integer_attribute_constraints["<"].append(constraint.split("<")[1])
                         elif "<=" in constraint:
                             count = 0
                             try:
                                 int(constraint.split("<=")[1])
                             except:
-                                print("Invalid constraint. Enter a numerical value for comparison.")
+                                print("Invalid constraint. Enter a numerical value for comparison. Please enter others or enter @$ to finish entering constraints for the attribute")
                                 continue
                             if len(integer_attribute_constraints["=="]) > 0:
                                 count += 1
-                                print("Invalid constraint. Equality constraint already exists with {}".format(
+                                print("Invalid constraint. Equality constraint already exists with {} Please enter others or enter @$ to finish entering constraints for the attribute".format(
                                     integer_attribute_constraints["=="][0]))
                             if len(integer_attribute_constraints[">"]) > 0:
                                 if int(constraint.split("<=")[1]) < int(integer_attribute_constraints[">"][0]):
-                                    print("Invalid constraint. Enter values greater than {}".format(
+                                    print("Invalid constraint. Enter values greater than {} Please enter others or enter @$ to finish entering constraints for the attribute".format(
                                         int(integer_attribute_constraints[">"][0])))
                                     count += 1
                             if len(integer_attribute_constraints[">="]) > 0:
                                 if int(constraint.split("<=")[1]) < int(integer_attribute_constraints[">="][0]):
-                                    print("Invalid constraint. Enter values greater than {}".format(
+                                    print("Invalid constraint. Enter values greater than {} Please enter others or enter @$ to finish entering constraints for the attribute".format(
                                         integer_attribute_constraints[">="][0]))
                                     count += 1
                             if len(integer_attribute_constraints["<"]) > 0:
                                 if int(constraint.split("<=")[1]) >= int(integer_attribute_constraints["<"][0]):
-                                    print("Invalid constraint. Enter values less than {}".format(
+                                    print("Invalid constraint. Enter values less than {} Please enter others or enter @$ to finish entering constraints for the attribute".format(
                                         integer_attribute_constraints["<"][0]))
                                     count += 1
                             if len(integer_attribute_constraints["<="]) > 0:
                                 count += 1
-                                print("Invalid constraint. Less than equal to constraint already exists.")
+                                print("Invalid constraint. Less than equal to constraint already exists. Please enter others or enter @$ to finish entering constraints for the attribute")
                             if (count == 0):
-                                print("Valid constraint.")
+                                print("Valid constraint. Please enter others or enter @$ to finish entering constraints for the attribute")
                                 integer_attribute_constraints["<="].append(
                                         constraint.split("<=")[1])
                         else:
-                            print("Invalid constraint. Enter valid constraints from <, <=, ==, <>, >=, and >.")
+                            print("Invalid constraint. Enter valid constraints from <, <=, ==, <>, >=, and >. Please enter others or enter @$ to finish entering constraints for the attribute")
                             continue
                 if(attribute_types[index2] == "string"):
                     attribute_constraints.append(string_attribute_constraints)
@@ -363,7 +369,7 @@ class Database:
     def trigger_table_mvds(self):
         mvd = MVD()
         for table in self.__tables:
-            mvd.define_MVDs(table.get_table_attributes(), len(table.get_table_attributes()))
+            mvd.define_MVDs(table.get_fds(), table.get_table_attributes(), len(table.get_table_attributes()))
 
     def generate_table_key(self):
         for table in self.__tables:
