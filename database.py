@@ -1,6 +1,7 @@
 from table import Table
 from fd import FD
 from mvd import MVD
+import Relational_Algebra as RA
 class Database:
     __tables = []
 
@@ -323,6 +324,43 @@ class Database:
             normal_form = table.compute_normal_form(fd_left, fd_right, candidate_keys, attributes)
             print("The table {} is in {}".format(table.get_table_name(), normal_form))
             table.set_normal_form(normal_form)
+
+    def Natural_Join(T1,T2):
+        at1 = T1.__table_attributes
+        at2 = T2.__table_attributes       
+        tup1 = T1.__tuples
+        tup2 = T2.__tuples 
+        join = RA.Natural_Join(at1,at2,tup1,tup2)
+        ck = join.get_candidate_keys()
+
+        if T1.key in ck:
+            join.set_key(T1.key)
+        elif T2.key in ck:
+            join.set_key(T1.key)
+        elif len(ck)>=1:
+            join.set_key(ck[0])
+        else
+            print "Error, no key determined for crossjoin"    
+        return join      
+
+    def Cross_Join(T1,T2):
+        at1 = T1.__table_attributes
+        at2 = T2.__table_attributes       
+        tup1 = T1.__tuples
+        tup2 = T2.__tuples 
+        join = RA.Natural_Join(at1,at2,tup1,tup2)
+        ck = join.get_candidate_keys()
+
+        if T1.key in ck:
+            join.set_key(T1.key)
+        elif T2.key in ck:
+            join.set_key(T1.key)
+        elif len(ck)>=1:
+            join.set_key(ck[0])
+        else
+            print "Error, no key determined for crossjoin"
+
+        return join        
 
     def trigger_key_input(self, tables):
         for table in tables:
