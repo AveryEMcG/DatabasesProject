@@ -20,7 +20,7 @@ class MVD:
         print("The attribute list in MVD is:",attrs_lst)
         print("The num_attr in MVD is:",num_attrs)
         MVD_dict={}  #List of non-trivial MVDs. 
-        var = input("Please enter MVDs in a string separated by comma {Format example: 'A->->B, D->->C'>}. or type quit \n")
+        var = raw_input("Please enter MVDs in a string separated by comma {Format example: 'A->->B, D->->C'>}. or type quit \n")
         if (var!="quit"):
             var="".join(var.split())
             if var[0]=="'":

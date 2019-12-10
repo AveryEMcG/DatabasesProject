@@ -41,7 +41,7 @@ class Database:
         for index1 in range(number_of_tables):
             table_name = ''
             while table_name == '':
-                table_name = input("enter the name of table number {}:\n".format(index1 + 1))
+                table_name = raw_input("enter the name of table number {}:\n".format(index1 + 1))
 
             number_of_attributes = self.validate_number_of_attributes(table_name, None)
             print("Please enter the attribute type and attribute name in the format - attribute_type:attribute_name\n")
@@ -49,7 +49,7 @@ class Database:
             attribute_types = []
             index2 = 0
             while index2 < number_of_attributes:
-                attribute_description = input("Please enter attribute number {}\n".format(index2 + 1))
+                attribute_description = raw_input("Please enter attribute number {}\n".format(index2 + 1))
                 try:
                     attribute_tokens = attribute_description.split(":")
                     if not self.validate_attribute_type(attribute_tokens[0]):
@@ -82,7 +82,7 @@ class Database:
                 string_attribute_constraints = {"==" : [], "<>" : []}
                 integer_attribute_constraints = {"==" : [], "<>" :[], "<=" : [], "<" :[], ">" : [], ">=" :[]}
                 while(True):
-                    constraint = input()
+                    constraint = raw_input()
                     if(constraint == '@$'):
                         break
                     elif(constraint==''):
@@ -309,20 +309,20 @@ class Database:
             print("Please enter the FDs for table {} in format: A->B\nOr enter 'quit' to stop entering fds"
                   " and 'delete' to delete fds.".format(name))
             while (True):
-                fd = input()
+                fd = raw_input()
                 if fd == "quit":
                     break
                 if fd == "delete":
                     count = 0
                     fds = table_fds
-                    fd = input("Enter the Functional dependency you want to remove from {}\n".format(fds))
+                    fd = raw_input("Enter the Functional dependency you want to remove from {}\n".format(fds))
                     while (count == 0):
                         try:
                             fds.remove(fd)
                             count += 1
                         except:
                             print("Invalid entry. Please enter the functional dependency from the {}".format(fds))
-                            fd = input("Enter the Functional dependency you want to remove from {}\n".format(fds))
+                            fd = raw_input("Enter the Functional dependency you want to remove from {}\n".format(fds))
                     print("Deleted successfully.")
                     continue
                 if "->" in fd:
@@ -442,7 +442,7 @@ class Database:
     def trigger_key_input(self):
         for table in self.__tables:
             while(True):
-                key = input("Please enter the key for table {}\n".format(table.get_table_name()))
+                key = raw_input("Please enter the key for table {}\n".format(table.get_table_name()))
                 if key in table.get_candidate_keys():
                     table.set_key(key)
                     print("Valid key.")
@@ -458,7 +458,7 @@ class Database:
             while(True):
                 if(table.get_foreign_key() != ""):
                     break
-                foreign = input("Please enter the foreign key for table {} in format\n"
+                foreign = raw_input("Please enter the foreign key for table {} in format\n"
                                 "table_name:attribute_name. Enter 'quit' to exit.\n"
                                 .format(table.get_table_name(), self.__tables))
                 if foreign == "quit":
@@ -494,7 +494,7 @@ class Database:
         for table in self.__tables:
             table_tuples = []
             while(True):
-                row = input("Please enter row values separated by commas for table {} \n"
+                row = raw_input("Please enter row values separated by commas for table {} \n"
                             "with attributes {} of type {} in the order that they appear.\n"
                             "For example: Attributes ABC with data type integer, string, integer should be input as\n"
                             "1,hello,2. Enter 'quit' to stop entering the input.\n"
@@ -615,10 +615,13 @@ class Database:
     def delete_rows(self):
         for table in self.__tables:
             while(True):
-                key = input("Enter the value of a key for table {} to remove the corresponding row. Enter 'quit' to exit.\n"
+                key = raw_input("Enter the value of a key for table {} to remove the corresponding row, or 'list' to see the table's attributes. Enter 'quit' to exit.\n"
                             .format(table.get_table_name()))
                 if key == "quit":
                     break
+                elif key == "list":
+                    for t in table.get_tuples():
+                        print t
                 else:
                     if table.get_foreign_key() != "":
                         count = 0
@@ -690,7 +693,7 @@ class Database:
         while(True):
             count = 0
             if len(self.__tables) > 0:
-                table_name = input("Please enter the name of the table you want to delete.\n")
+                table_name = raw_input("Please enter the name of the table you want to delete.\n")
                 deletion_table = None
                 table_names = []
                 for table in self.__tables:

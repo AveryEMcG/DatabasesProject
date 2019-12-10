@@ -110,6 +110,7 @@ class Table:
         keys = []
         rhs_attributes = []
         remaining_attributes = []
+
         for index in range(0, len(rhs)):
             attrs = list(rhs[index])
             for attr in attrs:
