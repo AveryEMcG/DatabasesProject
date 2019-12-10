@@ -161,7 +161,7 @@ class Table:
                 if attribute not in lhs_attributes:
                     lhs_attributes += attribute
 
-        if len(attributes) == 2:
+        if len(attributes) == 2 and len(keys[0]) == 1:
             return "Fifth Normal Form."
         for index1 in range(0, len(lhs)):
             for index2 in range(0, len(lhs_attributes)):

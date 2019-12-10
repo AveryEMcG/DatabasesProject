@@ -1,6 +1,6 @@
 from table import Table
 from mvd import MVD
-import Relational_Algebra as RA
+from Relational_Algebra import RelationalAlgebra as RA
 class Database:
     __tables = []
 
@@ -41,7 +41,7 @@ class Database:
         for index1 in range(number_of_tables):
             table_name = ''
             while table_name == '':
-                table_name = raw_input("enter the name of table number {}:\n".format(index1 + 1))
+                table_name = input("Enter the name of table number {}:\n".format(index1 + 1))
 
             number_of_attributes = self.validate_number_of_attributes(table_name, None)
             print("Please enter the attribute type and attribute name in the format - attribute_type:attribute_name\n")
@@ -49,7 +49,7 @@ class Database:
             attribute_types = []
             index2 = 0
             while index2 < number_of_attributes:
-                attribute_description = raw_input("Please enter attribute number {}\n".format(index2 + 1))
+                attribute_description = input("Please enter attribute number {}\n".format(index2 + 1))
                 try:
                     attribute_tokens = attribute_description.split(":")
                     if not self.validate_attribute_type(attribute_tokens[0]):
@@ -77,13 +77,13 @@ class Database:
             attribute_constraints = []
             for index2 in range(len(table_attributes)):
                 print("Please enter the constraints in format (attribute_name operator comparator) "
-                      "for attribute {}  or enter @$ to finish entering constraints for the attribute\n"
+                      "for attribute {}  or enter 'quit' to finish entering constraints for the attribute\n"
                       .format(table_attributes[index2]))
                 string_attribute_constraints = {"==" : [], "<>" : []}
                 integer_attribute_constraints = {"==" : [], "<>" :[], "<=" : [], "<" :[], ">" : [], ">=" :[]}
                 while(True):
-                    constraint = raw_input()
-                    if(constraint == '@$'):
+                    constraint = input()
+                    if(constraint == 'quit'):
                         break
                     elif(constraint==''):
                         print("Please enter the constraints in format (attribute_name operator comparator) "
@@ -309,20 +309,20 @@ class Database:
             print("Please enter the FDs for table {} in format: A->B\nOr enter 'quit' to stop entering fds"
                   " and 'delete' to delete fds.".format(name))
             while (True):
-                fd = raw_input()
+                fd = input()
                 if fd == "quit":
                     break
                 if fd == "delete":
                     count = 0
                     fds = table_fds
-                    fd = raw_input("Enter the Functional dependency you want to remove from {}\n".format(fds))
+                    fd = input("Enter the Functional dependency you want to remove from {}\n".format(fds))
                     while (count == 0):
                         try:
                             fds.remove(fd)
                             count += 1
                         except:
                             print("Invalid entry. Please enter the functional dependency from the {}".format(fds))
-                            fd = raw_input("Enter the Functional dependency you want to remove from {}\n".format(fds))
+                            fd = input("Enter the Functional dependency you want to remove from {}\n".format(fds))
                     print("Deleted successfully.")
                     continue
                 if "->" in fd:
@@ -380,7 +380,13 @@ class Database:
                 attributes = fd.split("->")
                 fd_left.append(attributes[0])
                 fd_right.append(attributes[1])
-            candidate_keys = table.generate_candidate_keys(fd_left, fd_right, table.get_table_attributes())
+            candidate_key = ""
+            if len(fds) == 0:
+                for attribute in table.get_table_attributes():
+                    candidate_key += attribute
+                candidate_keys = [candidate_key]
+            else :
+                candidate_keys = table.generate_candidate_keys(fd_left, fd_right, table.get_table_attributes())
             print("The candidate keys for the table {} is/are {}".format(table.get_table_name(), candidate_keys))
             table.set_candidate_keys(candidate_keys)
 
@@ -442,7 +448,7 @@ class Database:
     def trigger_key_input(self):
         for table in self.__tables:
             while(True):
-                key = raw_input("Please enter the key for table {}\n".format(table.get_table_name()))
+                key = input("Please enter the key for table {}\n".format(table.get_table_name()))
                 if key in table.get_candidate_keys():
                     table.set_key(key)
                     print("Valid key.")
@@ -458,7 +464,7 @@ class Database:
             while(True):
                 if(table.get_foreign_key() != ""):
                     break
-                foreign = raw_input("Please enter the foreign key for table {} in format\n"
+                foreign = input("Please enter the foreign key for table {} in format\n"
                                 "table_name:attribute_name. Enter 'quit' to exit.\n"
                                 .format(table.get_table_name(), self.__tables))
                 if foreign == "quit":
@@ -494,7 +500,7 @@ class Database:
         for table in self.__tables:
             table_tuples = []
             while(True):
-                row = raw_input("Please enter row values separated by commas for table {} \n"
+                row = input("Please enter row values separated by commas for table {} \n"
                             "with attributes {} of type {} in the order that they appear.\n"
                             "For example: Attributes ABC with data type integer, string, integer should be input as\n"
                             "1,hello,2. Enter 'quit' to stop entering the input.\n"
@@ -612,16 +618,154 @@ class Database:
                         print("The number of values do not match the attributes. Please re-enter.\n")
                     table.set_tuple(table_tuples)
 
+    def trigger_relational_algebra(self):
+        while(True):
+            rel = input("Choose the relational algebra operators Union, Intersection, "
+                        "Difference, Natural Join, or Cross Join on two tables.\n")
+            if rel == "quit":
+                break
+            elif rel.lower() == "union":
+                tables = input("Please enter the tables in format: table1,table2\n")
+                if "," in tables:
+                    t = tables.split(",")
+                    for table in self.__tables:
+                        if t[0] == table.get_table_name():
+                            table1 = table
+                        elif t[1] == table.get_table_name():
+                            table2 = table
+                else:
+                    print("Invalid input format. Please re-enter.\n")
+                    continue
+                attribute = input("Enter attribute for union.\n")
+                if attribute in table1.get_table_attributes() and attribute in table2.get_table_attributes():
+                    table1_attributes = table1.get_table_attributes()
+                    table2_attributes = table2.get_table_attributes()
+                    dict1 = {}
+                    dict2 = {}
+                    for table_attribute in table1_attributes:
+                        dict1[table_attribute] = []
+                    for table_attribute in table2_attributes:
+                        dict2[table_attribute] = []
+                    for row in table1.get_tuples():
+                        for index in range(len(row)):
+                            dict1[table1_attributes[index]].append(row[index])
+                    for row in table2.get_tuples():
+                        for index in range(len(row)):
+                            dict2[table2_attributes[index]].append(row[index])
+                    RA().union_of_tables(dict1, dict2, attribute)
+                else:
+                    print("The attribute entered is not common to both tables. Hence union cannot be done.\n")
+            elif rel.lower() == "intersection":
+                tables = input("Please enter the tables in format: table1,table2\n")
+                if "," in tables:
+                    t = tables.split(",")
+                    for table in self.__tables:
+                        if t[0] == table.get_table_name():
+                            table1 = table
+                        elif t[1] == table.get_table_name():
+                            table2 = table
+                else:
+                    print("Invalid input format. Please re-enter.\n")
+                    continue
+                attribute = input("Enter attribute for Intersection.\n")
+                if attribute in table1.get_table_attributes() and attribute in table2.get_table_attributes():
+                    table1_attributes = table1.get_table_attributes()
+                    table2_attributes = table2.get_table_attributes()
+                    dict1 = {}
+                    dict2 = {}
+                    for table_attribute in table1_attributes:
+                        dict1[table_attribute] = []
+                    for table_attribute in table2_attributes:
+                        dict2[table_attribute] = []
+                    for row in table1.get_tuples():
+                        for index in range(len(row)):
+                            dict1[table1_attributes[index]].append(row[index])
+                    for row in table2.get_tuples():
+                        for index in range(len(row)):
+                            dict2[table2_attributes[index]].append(row[index])
+                    RA().intersection_of_tables(dict1, dict2, attribute)
+                else:
+                    print("The attribute entered is not common to both tables. Hence Intersection cannot be done.\n")
+            elif rel.lower() == "difference":
+                tables = input("Please enter the tables in format: table1,table2\n")
+                if "," in tables:
+                    t = tables.split(",")
+                    for table in self.__tables:
+                        if t[0] == table.get_table_name():
+                            table1 = table
+                        elif t[1] == table.get_table_name():
+                            table2 = table
+                else:
+                    print("Invalid input format. Please re-enter.\n")
+                    continue
+                attribute = input("Enter attribute for difference.\n")
+                if attribute in table1.get_table_attributes() and attribute in table2.get_table_attributes():
+                    table1_attributes = table1.get_table_attributes()
+                    table2_attributes = table2.get_table_attributes()
+                    dict1 = {}
+                    dict2 = {}
+                    for table_attribute in table1_attributes:
+                        dict1[table_attribute] = []
+                    for table_attribute in table2_attributes:
+                        dict2[table_attribute] = []
+                    for row in table1.get_tuples():
+                        for index in range(len(row)):
+                            dict1[table1_attributes[index]].append(row[index])
+                    for row in table2.get_tuples():
+                        for index in range(len(row)):
+                            dict2[table2_attributes[index]].append(row[index])
+                    RA().diff_pd(dict1, dict2)
+                else:
+                    print("The attribute entered is not common to both tables. Hence Difference cannot be done.\n")
+            elif rel.lower() == "natural join":
+                tables = input("Please enter the tables in format: table1,table2\n")
+                if "," in tables:
+                    t = tables.split(",")
+                    for table in self.__tables:
+                        if t[0] == table.get_table_name():
+                            table1 = table
+                        elif t[1] == table.get_table_name():
+                            table2 = table
+                else:
+                    print("Invalid input format. Please re-enter.\n")
+                    continue
+                attribute = input("Enter attribute for natural join.\n")
+                if attribute in table1.get_table_attributes() and attribute in table2.get_table_attributes():
+                    table1_attributes = table1.get_table_attributes()
+                    table2_attributes = table2.get_table_attributes()
+                    dict1 = {}
+                    dict2 = {}
+                    for table_attribute in table1_attributes:
+                        dict1[table_attribute] = []
+                    for table_attribute in table2_attributes:
+                        dict2[table_attribute] = []
+                    for row in table1.get_tuples():
+                        for index in range(len(row)):
+                            dict1[table1_attributes[index]].append(row[index])
+                    for row in table2.get_tuples():
+                        for index in range(len(row)):
+                            dict2[table2_attributes[index]].append(row[index])
+                    RA().natural_join(table1_attributes, table2_attributes, table1.get_tuples(), table2.get_tuples())
+                else:
+                    print("The attribute entered is not common to both tables. Hence natural join cannot be done.\n")
+            else:
+                print("Invalid value entered. Please re-enter.\n")
+                continue
+
+
+
+
+
     def delete_rows(self):
         for table in self.__tables:
             while(True):
-                key = raw_input("Enter the value of a key for table {} to remove the corresponding row, or 'list' to see the table's attributes. Enter 'quit' to exit.\n"
+                key = input("Enter the value of a key for table {} to remove the corresponding row, or 'list' to see the table's attributes. Enter 'quit' to exit.\n"
                             .format(table.get_table_name()))
                 if key == "quit":
                     break
                 elif key == "list":
                     for t in table.get_tuples():
-                        print t
+                        print(t)
                 else:
                     if table.get_foreign_key() != "":
                         count = 0
@@ -693,7 +837,7 @@ class Database:
         while(True):
             count = 0
             if len(self.__tables) > 0:
-                table_name = raw_input("Please enter the name of the table you want to delete.\n")
+                table_name = input("Please enter the name of the table you want to delete.\n")
                 deletion_table = None
                 table_names = []
                 for table in self.__tables:
