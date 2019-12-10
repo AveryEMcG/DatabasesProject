@@ -27,7 +27,8 @@ class FD:
                     except:
                         print("Invalid entry. Please enter the functional dependency from the {}".format(fds))
                         fd = input("Enter the Functional dependency you want to remove from {}\n".format(fds))
-                print("Deleted successfully.")
+                print("Deleted successfully.\n")
+                print("Enter functional dependencies for table {}\n".format(table.get_table_name()))
                 continue
             if "->" in fd:
                 attributes = fd.split("->")

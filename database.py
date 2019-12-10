@@ -363,6 +363,12 @@ class Database:
     def trigger_table_mvds(self):
         mvd = MVD()
         for table in self.__tables:
+            fd_dict = {}
+            for fd in table.get_fds():
+                f = fd.split("->")
+                lhs = f[0]
+                rhs = f[1]
+
             mvd.define_MVDs(table.get_table_attributes(), len(table.get_table_attributes()))
 
     def generate_table_key(self):
@@ -374,7 +380,13 @@ class Database:
                 attributes = fd.split("->")
                 fd_left.append(attributes[0])
                 fd_right.append(attributes[1])
-            candidate_keys = table.generate_candidate_keys(fd_left, fd_right, table.get_table_attributes())
+            candidate_key = ""
+            if len(fds) == 0:
+                for attribute in table.get_table_attributes():
+                    candidate_key += attribute
+                candidate_keys = [candidate_key]
+            else :
+                candidate_keys = table.generate_candidate_keys(fd_left, fd_right, table.get_table_attributes())
             print("The candidate keys for the table {} is/are {}".format(table.get_table_name(), candidate_keys))
             table.set_candidate_keys(candidate_keys)
 
