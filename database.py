@@ -75,13 +75,13 @@ class Database:
             attribute_constraints = []
             for index2 in range(len(table_attributes)):
                 print("Please enter the constraints in format (attribute_name operator comparator) "
-                      "for attribute {}  or enter @$ to finish entering constraints for the attribute\n"
+                      "for attribute {}  or enter 'quit' to finish entering constraints for the attribute\n"
                       .format(table_attributes[index2]))
                 string_attribute_constraints = {"==" : [], "<>" : []}
                 integer_attribute_constraints = {"==" : [], "<>" :[], "<=" : [], "<" :[], ">" : [], ">=" :[]}
                 while(True):
                     constraint = input()
-                    if(constraint == '@$'):
+                    if(constraint == 'quit'):
                         break
                     elif(constraint[0] != table_attributes[index2]):
                         print("Enter attributes for {}".format(table_attributes[index2]))
