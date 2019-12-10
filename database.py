@@ -1,6 +1,6 @@
 from table import Table
 from mvd import MVD
-import Relational_Algebra as RA
+from Relational_Algebra import RelationalAlgebra as RA
 class Database:
     __tables = []
 
@@ -617,6 +617,144 @@ class Database:
                     else:
                         print("The number of values do not match the attributes. Please re-enter.\n")
                     table.set_tuple(table_tuples)
+
+    def trigger_relational_algebra(self):
+        while(True):
+            rel = input("Choose the relational algebra operators Union, Intersection, "
+                        "Difference, Natural Join, or Cross Join on two tables.\n")
+            if rel == "quit":
+                break
+            elif rel.lower() == "union":
+                tables = input("Please enter the tables in format: table1,table2\n")
+                if "," in tables:
+                    t = tables.split(",")
+                    for table in self.__tables:
+                        if t[0] == table.get_table_name():
+                            table1 = table
+                        elif t[1] == table.get_table_name():
+                            table2 = table
+                else:
+                    print("Invalid input format. Please re-enter.\n")
+                    continue
+                attribute = input("Enter attribute for union.\n")
+                if attribute in table1.get_table_attributes() and attribute in table2.get_table_attributes():
+                    table1_attributes = table1.get_table_attributes()
+                    table2_attributes = table2.get_table_attributes()
+                    dict1 = {}
+                    dict2 = {}
+                    for table_attribute in table1_attributes:
+                        dict1[table_attribute] = []
+                    for table_attribute in table2_attributes:
+                        dict2[table_attribute] = []
+                    for row in table1.get_tuples():
+                        for index in range(len(row)):
+                            dict1[table1_attributes[index]].append(row[index])
+                    for row in table2.get_tuples():
+                        for index in range(len(row)):
+                            dict2[table2_attributes[index]].append(row[index])
+                    RA().union_of_tables(dict1, dict2, attribute)
+                else:
+                    print("The attribute entered is not common to both tables. Hence union cannot be done.\n")
+            elif rel.lower() == "intersection":
+                tables = input("Please enter the tables in format: table1,table2\n")
+                if "," in tables:
+                    t = tables.split(",")
+                    for table in self.__tables:
+                        if t[0] == table.get_table_name():
+                            table1 = table
+                        elif t[1] == table.get_table_name():
+                            table2 = table
+                else:
+                    print("Invalid input format. Please re-enter.\n")
+                    continue
+                attribute = input("Enter attribute for Intersection.\n")
+                if attribute in table1.get_table_attributes() and attribute in table2.get_table_attributes():
+                    table1_attributes = table1.get_table_attributes()
+                    table2_attributes = table2.get_table_attributes()
+                    dict1 = {}
+                    dict2 = {}
+                    for table_attribute in table1_attributes:
+                        dict1[table_attribute] = []
+                    for table_attribute in table2_attributes:
+                        dict2[table_attribute] = []
+                    for row in table1.get_tuples():
+                        for index in range(len(row)):
+                            dict1[table1_attributes[index]].append(row[index])
+                    for row in table2.get_tuples():
+                        for index in range(len(row)):
+                            dict2[table2_attributes[index]].append(row[index])
+                    RA().intersection_of_tables(dict1, dict2, attribute)
+                else:
+                    print("The attribute entered is not common to both tables. Hence Intersection cannot be done.\n")
+            elif rel.lower() == "difference":
+                tables = input("Please enter the tables in format: table1,table2\n")
+                if "," in tables:
+                    t = tables.split(",")
+                    for table in self.__tables:
+                        if t[0] == table.get_table_name():
+                            table1 = table
+                        elif t[1] == table.get_table_name():
+                            table2 = table
+                else:
+                    print("Invalid input format. Please re-enter.\n")
+                    continue
+                attribute = input("Enter attribute for difference.\n")
+                if attribute in table1.get_table_attributes() and attribute in table2.get_table_attributes():
+                    table1_attributes = table1.get_table_attributes()
+                    table2_attributes = table2.get_table_attributes()
+                    dict1 = {}
+                    dict2 = {}
+                    for table_attribute in table1_attributes:
+                        dict1[table_attribute] = []
+                    for table_attribute in table2_attributes:
+                        dict2[table_attribute] = []
+                    for row in table1.get_tuples():
+                        for index in range(len(row)):
+                            dict1[table1_attributes[index]].append(row[index])
+                    for row in table2.get_tuples():
+                        for index in range(len(row)):
+                            dict2[table2_attributes[index]].append(row[index])
+                    RA().diff_pd(dict1, dict2)
+                else:
+                    print("The attribute entered is not common to both tables. Hence Difference cannot be done.\n")
+            elif rel.lower() == "natural join":
+                tables = input("Please enter the tables in format: table1,table2\n")
+                if "," in tables:
+                    t = tables.split(",")
+                    for table in self.__tables:
+                        if t[0] == table.get_table_name():
+                            table1 = table
+                        elif t[1] == table.get_table_name():
+                            table2 = table
+                else:
+                    print("Invalid input format. Please re-enter.\n")
+                    continue
+                attribute = input("Enter attribute for natural join.\n")
+                if attribute in table1.get_table_attributes() and attribute in table2.get_table_attributes():
+                    table1_attributes = table1.get_table_attributes()
+                    table2_attributes = table2.get_table_attributes()
+                    dict1 = {}
+                    dict2 = {}
+                    for table_attribute in table1_attributes:
+                        dict1[table_attribute] = []
+                    for table_attribute in table2_attributes:
+                        dict2[table_attribute] = []
+                    for row in table1.get_tuples():
+                        for index in range(len(row)):
+                            dict1[table1_attributes[index]].append(row[index])
+                    for row in table2.get_tuples():
+                        for index in range(len(row)):
+                            dict2[table2_attributes[index]].append(row[index])
+                    RA().natural_join(table1_attributes, table2_attributes, table1.get_tuples(), table2.get_tuples())
+                else:
+                    print("The attribute entered is not common to both tables. Hence natural join cannot be done.\n")
+            else:
+                print("Invalid value entered. Please re-enter.\n")
+                continue
+
+
+
+
 
     def delete_rows(self):
         for table in self.__tables:

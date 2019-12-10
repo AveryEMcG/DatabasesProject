@@ -11,6 +11,7 @@ def main():
     database.trigger_key_input()
     database.trigger_foreign_key_input()
     database.insert_rows()
+    database.trigger_relational_algebra()
     database.delete_rows()
     database.delete_table()
 
